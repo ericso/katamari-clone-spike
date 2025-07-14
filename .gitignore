@@ -1,0 +1,50 @@
+# Godot-specific
+.import/
+export.cfg
+export_presets.cfg
+
+# User-specific editor data
+*.godot/        # Godot 4.x metadata
+*.mono/         # Mono projects (if using C#)
+.editor/
+.editor_settings-*.json
+godot.editor
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Build artifacts
+*.exe
+*.dll
+*.apk
+*.aab
+*.pck
+*.zip
+*.tar.gz
+
+# Logs
+*.log
+
+# Cache (Godot 4)
+.cache/
+
+# VSCode / JetBrains / other IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Python virtualenvs or node_modules if scripting
+venv/
+node_modules/
+
+# Exported games
+/build/
+bin/
+
+# Godot auto-generated files
+shader_cache/
+.import/
+.godot/
