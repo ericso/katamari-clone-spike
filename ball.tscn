@@ -19,5 +19,9 @@ shape = SubResource("SphereShape3D_41u45")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("SphereMesh_ktgx5")
 
-[node name="Camera" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.839639, 2.25911)
+[node name="SpringArm" type="SpringArm3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.939693, 0.34202, 0, -0.34202, 0.939693, 0, 2, 2)
+spring_length = 6.0
+
+[node name="Camera" type="Camera3D" parent="SpringArm"]
+current = true
