@@ -1,8 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://bu3f7caahamu5"]
+[gd_scene load_steps=9 format=3 uid="uid://bu3f7caahamu5"]
 
+[ext_resource type="Script" uid="uid://cjhn3y47klach" path="res://main.gd" id="1_1bvp3"]
 [ext_resource type="Texture2D" uid="uid://b4q3kmtk6okms" path="res://checkerboard.png" id="1_h2yge"]
 [ext_resource type="PackedScene" uid="uid://b2si5snpmegr6" path="res://ball.tscn" id="1_ig7tw"]
 [ext_resource type="Script" uid="uid://cqt2adrs30kiw" path="res://camera_rig.gd" id="2_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://ch563stkpebmb" path="res://box.tscn" id="2_lquwl"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_7dm0k"]
 size = Vector3(1000, 2, 1000)
@@ -16,6 +18,8 @@ material = SubResource("StandardMaterial3D_1bvp3")
 size = Vector3(1000, 2, 1000)
 
 [node name="Main" type="Node"]
+script = ExtResource("1_1bvp3")
+box_scene = ExtResource("2_lquwl")
 
 [node name="Ground" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
@@ -28,7 +32,7 @@ shape = SubResource("BoxShape3D_7dm0k")
 [node name="MeshInstance" type="MeshInstance3D" parent="Ground"]
 mesh = SubResource("BoxMesh_7dm0k")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 71, 63)
 shadow_enabled = true
 

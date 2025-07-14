@@ -1,9 +1,9 @@
 extends Node3D
 
-@export var target_path: NodePath          # drag Ball here in the Inspector
+@export var target_path: NodePath # drag Ball here in the Inspector
 @export var sensitivity := 0.01
-@export var vertical_limit := 80.0         # degrees
-@export var follow_lerp := 10.0            # position smoothing
+@export var vertical_limit := 80.0 # in degrees
+@export var follow_lerp := 10.0 # position smoothing
 
 @export var zoom_speed := 2.0
 @export var min_zoom := 2.0
@@ -13,7 +13,7 @@ extends Node3D
 
 var yaw := 0.0
 var pitch := 0.0
-var target: Node3D
+var target: Node3D # target is the ball being followed by the camera
 
 func _ready() -> void:
 	target = get_node(target_path)
@@ -29,7 +29,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
 		spring_arm.spring_length = min(max_zoom, spring_arm.spring_length + zoom_speed)
 	
-	# Optional: escape to toggle mouse mode
+	# press escape key to toggle mouse mode
 	if event.is_action_pressed("ui_cancel"):
 		Input.set_mouse_mode(
 			Input.MOUSE_MODE_VISIBLE if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED

@@ -3,15 +3,19 @@ extends RigidBody3D
 @export var move_force := 10.0
 var max_angular_speed := 10.0
 
-var camera_rig: Node3D
+var camera_rig: Node3D # camera following the ball
 
 func _ready():
 	# Find CameraRig anywhere in the scene tree
 	camera_rig = get_tree().root.get_node("Main/CameraRig")  # Adjust path if needed
 	if camera_rig == null:
 		push_error("Could not find CameraRig!")
+	
+	contact_monitor = true
+	max_contacts_reported = 32
 
 func _physics_process(delta):
+	# handle camera (TODO move this to utility func)
 	if camera_rig == null:
 		return
 	
@@ -45,3 +49,22 @@ func _physics_process(delta):
 	# Clamp spin
 	if angular_velocity.length() > max_angular_speed:
 		angular_velocity = angular_velocity.normalized() * max_angular_speed
+
+func _on_sticky_area_body_entered(body: Node) -> void:
+	if body is RigidBody3D and body.is_in_group("stickable") and not body.has_meta("stuck"):
+		body.set_meta("stuck", true)
+
+		# Create PinJoint3D to stick it to the ball
+		var joint := PinJoint3D.new()
+		joint.node_a = self.get_path()
+		joint.node_b = body.get_path()
+		joint.position = to_global(Vector3.ZERO)  # center of the ball
+		get_tree().current_scene.add_child(joint)
+
+		# Optional: dampen the stuck object's motion
+		body.gravity_scale = 0
+		body.linear_damp = 1.0
+		body.angular_damp = 1.0
+
+		# Optional: increase your ball's mass
+		mass += 0.2
