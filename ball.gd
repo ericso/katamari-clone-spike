@@ -2,7 +2,7 @@ extends RigidBody3D
 
 @export var move_force := 10.0
 const CAMERA_RIG_NAME := "CameraRig" # Match your actual node name
-var max_angular_speed := 5.0
+var max_angular_speed := 10.0
 
 var camera_rig: Node3D
 
@@ -31,7 +31,7 @@ func _physics_process(delta):
 		return
 
 	var cam_basis = camera_rig.global_transform.basis
-	var forward = -cam_basis.z
+	var forward = cam_basis.z
 	var right = cam_basis.x
 
 	forward.y = 0
