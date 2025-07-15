@@ -17,3 +17,6 @@ shape = SubResource("SphereShape3D_41u45")
 mesh = SubResource("SphereMesh_ktgx5")
 
 [node name="StuckParts" type="Node3D" parent="."]
+
+[node name="GroundCheck" type="RayCast3D" parent="."]
+collision_mask = 4

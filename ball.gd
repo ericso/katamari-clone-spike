@@ -2,8 +2,11 @@ extends RigidBody3D
 
 @export var stuck_parts_container_path: NodePath = "StuckParts"
 
-@export var move_force := 10.0
-var max_angular_speed := 10.0
+@export var move_force := 3.0
+var max_angular_speed := 5.0
+
+@export var jump_force := 10.0
+var can_jump := false
 
 var camera_rig: Node3D # camera following the ball
 
@@ -16,11 +19,19 @@ func _ready():
 	contact_monitor = true
 	max_contacts_reported = 32
 	body_entered.connect(_on_body_entered)
+	
+	# used to detect if the ball is in the air
+	$GroundCheck.enabled = true
 
 func _physics_process(_delta):
 	# handle camera (TODO move this to utility func)
 	if camera_rig == null:
 		return
+	
+	if $GroundCheck.is_colliding():
+		can_jump = true
+	else:
+		can_jump = false
 	
 	var input_dir = Vector3.ZERO
 	if Input.is_action_pressed("move_forward"):
@@ -31,6 +42,9 @@ func _physics_process(_delta):
 		input_dir.x -= 1
 	if Input.is_action_pressed("move_right"):
 		input_dir.x += 1
+	if Input.is_action_just_pressed("jump") and can_jump:
+		apply_impulse(Vector3.UP * jump_force)
+		can_jump = false
 	
 	input_dir = input_dir.normalized()
 	if input_dir == Vector3.ZERO:
