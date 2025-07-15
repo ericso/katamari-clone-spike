@@ -50,21 +50,55 @@ func _physics_process(delta):
 	if angular_velocity.length() > max_angular_speed:
 		angular_velocity = angular_velocity.normalized() * max_angular_speed
 
+#func _on_sticky_area_body_entered(body: Node) -> void:
+	#if body == self:
+		#return  # don't process self
+#
+	#print("DEBUG::_on_sticky_area_body_entered:", body.name)
+#
+	#if body is RigidBody3D and body.is_in_group("stickable") and not body.has_meta("stuck"):
+		#print("STICKING:", body.name)
+		#body.set_meta("stuck", true)
+#
+		#var joint := PinJoint3D.new()
+		#get_tree().current_scene.add_child(joint)
+		#joint.node_a = self.get_path()
+		#joint.node_b = body.get_path()
+		#joint.position = body.global_position
+#
+		#body.gravity_scale = 0
+		#body.linear_damp = 10
+		#body.angular_damp = 10
+		
 func _on_sticky_area_body_entered(body: Node) -> void:
+	if body == self:
+		return
+
 	if body is RigidBody3D and body.is_in_group("stickable") and not body.has_meta("stuck"):
 		body.set_meta("stuck", true)
 
-		# Create PinJoint3D to stick it to the ball
-		var joint := PinJoint3D.new()
-		joint.node_a = self.get_path()
-		joint.node_b = body.get_path()
-		joint.position = to_global(Vector3.ZERO)  # center of the ball
-		get_tree().current_scene.add_child(joint)
+		var local_transform = self.global_transform.affine_inverse() * body.global_transform
 
-		# Optional: dampen the stuck object's motion
-		body.gravity_scale = 0
-		body.linear_damp = 1.0
-		body.angular_damp = 1.0
+		# 1. Copy MeshInstance3D
+		var original_mesh := body.get_node_or_null("MeshInstance")
+		if original_mesh:
+			var mesh_copy := MeshInstance3D.new()
+			mesh_copy.mesh = original_mesh.mesh
+			mesh_copy.material_override = original_mesh.material_override
+			mesh_copy.transform = local_transform
+			mesh_copy.scale = original_mesh.scale
+			add_child(mesh_copy)
 
-		# Optional: increase your ball's mass
+		# 2. Copy CollisionShape3D
+		var shape_node := body.get_node_or_null("CollisionShape")
+		if shape_node and shape_node.shape:
+			var new_shape := CollisionShape3D.new()
+			new_shape.shape = shape_node.shape.duplicate()  # don't reuse!
+			new_shape.transform = local_transform
+			add_child(new_shape)
+
+		# 3. (Optional) increase ball's mass
 		mass += 0.2
+
+		# 4. Remove original physics body
+		body.queue_free()
