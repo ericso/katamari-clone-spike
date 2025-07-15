@@ -1,5 +1,7 @@
 extends RigidBody3D
 
+@export var stuck_parts_container_path: NodePath = "StuckParts"
+
 @export var move_force := 10.0
 var max_angular_speed := 10.0
 
@@ -13,8 +15,9 @@ func _ready():
 	
 	contact_monitor = true
 	max_contacts_reported = 32
+	body_entered.connect(_on_body_entered)
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	# handle camera (TODO move this to utility func)
 	if camera_rig == null:
 		return
@@ -50,55 +53,28 @@ func _physics_process(delta):
 	if angular_velocity.length() > max_angular_speed:
 		angular_velocity = angular_velocity.normalized() * max_angular_speed
 
-#func _on_sticky_area_body_entered(body: Node) -> void:
-	#if body == self:
-		#return  # don't process self
-#
-	#print("DEBUG::_on_sticky_area_body_entered:", body.name)
-#
-	#if body is RigidBody3D and body.is_in_group("stickable") and not body.has_meta("stuck"):
-		#print("STICKING:", body.name)
-		#body.set_meta("stuck", true)
-#
-		#var joint := PinJoint3D.new()
-		#get_tree().current_scene.add_child(joint)
-		#joint.node_a = self.get_path()
-		#joint.node_b = body.get_path()
-		#joint.position = body.global_position
-#
-		#body.gravity_scale = 0
-		#body.linear_damp = 10
-		#body.angular_damp = 10
-		
-func _on_sticky_area_body_entered(body: Node) -> void:
-	if body == self:
-		return
-
+func _on_body_entered(body: Node) -> void:
 	if body is RigidBody3D and body.is_in_group("stickable") and not body.has_meta("stuck"):
 		body.set_meta("stuck", true)
-
-		var local_transform = self.global_transform.affine_inverse() * body.global_transform
-
-		# 1. Copy MeshInstance3D
-		var original_mesh := body.get_node_or_null("MeshInstance")
-		if original_mesh:
+		
+		var mesh_node := body.get_node_or_null("MeshInstance")
+		if mesh_node:
 			var mesh_copy := MeshInstance3D.new()
-			mesh_copy.mesh = original_mesh.mesh
-			mesh_copy.material_override = original_mesh.material_override
-			mesh_copy.transform = local_transform
-			mesh_copy.scale = original_mesh.scale
-			add_child(mesh_copy)
-
-		# 2. Copy CollisionShape3D
+			mesh_copy.mesh = mesh_node.mesh
+			mesh_copy.material_override = mesh_node.material_override
+			mesh_copy.scale = mesh_node.scale
+			
+			get_node(stuck_parts_container_path).add_child(mesh_copy)
+			mesh_copy.global_transform = mesh_node.global_transform
+		
 		var shape_node := body.get_node_or_null("CollisionShape")
 		if shape_node and shape_node.shape:
-			var new_shape := CollisionShape3D.new()
-			new_shape.shape = shape_node.shape.duplicate()  # don't reuse!
-			new_shape.transform = local_transform
-			add_child(new_shape)
-
-		# 3. (Optional) increase ball's mass
-		mass += 0.2
-
-		# 4. Remove original physics body
+			var shape_copy := CollisionShape3D.new()
+			shape_copy.shape = shape_node.shape.duplicate()
+			
+			add_child(shape_copy)
+			shape_copy.global_transform = shape_node.global_transform
+		
+		mass += 0.5
+		
 		body.queue_free()
