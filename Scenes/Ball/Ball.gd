@@ -28,7 +28,7 @@ func _on_body_entered(body: Node) -> void:
 		and not body.has_meta("stuck"):
 		body.set_meta("stuck", true)
 		
-		# add the body's mesh to the stuck parts container
+		# copy visual mesh
 		var mesh_node := body.get_node_or_null("MeshInstance")
 		if mesh_node:
 			var mesh_copy := MeshInstance3D.new()
@@ -39,7 +39,7 @@ func _on_body_entered(body: Node) -> void:
 			get_node(stuck_parts_container_path).add_child(mesh_copy)
 			mesh_copy.global_transform = mesh_node.global_transform
 		
-		# add the body's collision shape to that of the ball's
+		# copy collision shape
 		var shape_node := body.get_node_or_null("CollisionShape")
 		if shape_node and shape_node.shape:
 			var shape_copy := CollisionShape3D.new()
@@ -49,7 +49,7 @@ func _on_body_entered(body: Node) -> void:
 			shape_copy.global_transform = shape_node.global_transform
 		
 		# increase the mass of the ball
-		mass += 0.5
+		mass += body.mass
 		
 		# despawn the attached body
 		body.queue_free()
