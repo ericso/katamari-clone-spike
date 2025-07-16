@@ -8,10 +8,12 @@ var max_angular_speed := 5.0
 @export var jump_force := 10.0
 var can_jump := false
 
+@export var force_growth_factor := 2 # multipler for how the forces grow
+
 # initial ball radius, used to keep track of the collision sphere radius and
 # in scaling the ball when it grows
 var ball_radius := 0.5 
-@export var growth_factor := 1.0 # growth_factor is a multipler for how fast the ball grows
+@export var growth_factor := 1.0 # multipler for how fast the ball grows
 
 const STICKABLE_GROUP := "stickable"
 const STUCK_META := "stuck"
@@ -155,3 +157,7 @@ func grow_by(delta: float) -> void:
 	# update GroundCheck RayCast vector
 	var new_y = $GroundCheck.target_position.y - (ball_radius + abs($GroundCheck.target_position.y))/abs($GroundCheck.target_position.y)
 	$GroundCheck.target_position.y = new_y
+	
+	# update move and jump forces
+	move_force += force_growth_factor * ((delta + move_force) / move_force)
+	jump_force += force_growth_factor * ((delta + jump_force) / jump_force)
