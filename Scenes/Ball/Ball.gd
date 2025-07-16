@@ -19,10 +19,16 @@ func _ready():
 func _physics_process(_delta):
 	handle_movement(Camera.get_camera_basis())
 
+# _on_body_entered is the handler for when an object collides with (enters)
+# the ball. We use it "stick" to it objects in the "stickable" group, that have
+# not already been "stuck".
 func _on_body_entered(body: Node) -> void:
-	if body is RigidBody3D and body.is_in_group("stickable") and not body.has_meta("stuck"):
+	if body is RigidBody3D \
+		and body.is_in_group("stickable") \
+		and not body.has_meta("stuck"):
 		body.set_meta("stuck", true)
 		
+		# add the body's mesh to the stuck parts container
 		var mesh_node := body.get_node_or_null("MeshInstance")
 		if mesh_node:
 			var mesh_copy := MeshInstance3D.new()
@@ -33,6 +39,7 @@ func _on_body_entered(body: Node) -> void:
 			get_node(stuck_parts_container_path).add_child(mesh_copy)
 			mesh_copy.global_transform = mesh_node.global_transform
 		
+		# add the body's collision shape to that of the ball's
 		var shape_node := body.get_node_or_null("CollisionShape")
 		if shape_node and shape_node.shape:
 			var shape_copy := CollisionShape3D.new()
@@ -41,8 +48,10 @@ func _on_body_entered(body: Node) -> void:
 			add_child(shape_copy)
 			shape_copy.global_transform = shape_node.global_transform
 		
+		# increase the mass of the ball
 		mass += 0.5
 		
+		# despawn the attached body
 		body.queue_free()
 
 # handle_movement handles moving the ball
