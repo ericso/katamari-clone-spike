@@ -36,9 +36,6 @@ shadow_enabled = true
 
 [node name="Ball" parent="." instance=ExtResource("3_w20t6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-stuck_parts_container_path = NodePath("StuckParts")
-move_force = 3.0
-jump_force = 10.0
 
 [node name="CameraRig" type="Node3D" parent="."]
 script = ExtResource("4_aw1lf")

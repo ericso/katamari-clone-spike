@@ -8,6 +8,15 @@ var max_angular_speed := 5.0
 @export var jump_force := 10.0
 var can_jump := false
 
+# initial ball radius, used to keep track of the collision sphere radius and
+# in scaling the ball when it grows
+var ball_radius := 0.5 
+@export var growth_factor := 1.0 # growth_factor is a multipler for how fast the ball grows
+
+const STICKABLE_GROUP := "stickable"
+const STUCK_META := "stuck"
+const STUCK_COLLISION_META := "stuck_collision"
+
 func _ready():
 	contact_monitor = true
 	max_contacts_reported = 32
@@ -17,6 +26,9 @@ func _ready():
 	$GroundCheck.enabled = true
 
 func _physics_process(_delta):
+	if Input.is_action_pressed("absorb"):
+		absorb_stuck_parts()
+	
 	handle_movement(Camera.get_camera_basis())
 
 # _on_body_entered is the handler for when an object collides with (enters)
@@ -24,9 +36,9 @@ func _physics_process(_delta):
 # not already been "stuck".
 func _on_body_entered(body: Node) -> void:
 	if body is RigidBody3D \
-		and body.is_in_group("stickable") \
-		and not body.has_meta("stuck"):
-		body.set_meta("stuck", true)
+		and body.is_in_group(STICKABLE_GROUP) \
+		and not body.has_meta(STUCK_META):
+		body.set_meta(STUCK_META, true)
 		
 		# copy visual mesh
 		var mesh_node := body.get_node_or_null("MeshInstance")
@@ -44,6 +56,7 @@ func _on_body_entered(body: Node) -> void:
 		if shape_node and shape_node.shape:
 			var shape_copy := CollisionShape3D.new()
 			shape_copy.shape = shape_node.shape.duplicate()
+			shape_copy.set_meta(STUCK_COLLISION_META, true)
 			
 			add_child(shape_copy)
 			shape_copy.global_transform = shape_node.global_transform
@@ -95,3 +108,50 @@ func handle_movement(camera_basis: Basis) -> void:
 	# Clamp spin
 	if angular_velocity.length() > max_angular_speed:
 		angular_velocity = angular_velocity.normalized() * max_angular_speed
+
+# absorb_stuck_parts 
+func absorb_stuck_parts():
+	var stuck_container = get_node(stuck_parts_container_path)
+	var total_volume := 0.0
+	
+	# remove the visual objects from the ball
+	for part in stuck_container.get_children():
+		if part is MeshInstance3D:
+			var pscale = part.scale
+			var volume: float = pscale.x * pscale.y * pscale.z
+			total_volume += volume
+			part.queue_free()
+	
+	# remove the objects' collision shapes
+	for child in get_children():
+		if child is CollisionShape3D and child.has_meta(STUCK_COLLISION_META):
+			child.queue_free()
+	
+	if total_volume > 0.0:
+		mass += total_volume
+		# normalize the increase in radius of the ball
+		var normalized_increase = pow((pow(ball_radius, 3) + total_volume), 1.0 / 3.0) - ball_radius
+		grow_by(normalized_increase)
+
+# grow_by increases the ball's radius. It handles scaling the collision shape and mesh.
+func grow_by(delta: float) -> void:
+	# update the ball_radius tracking variable
+	ball_radius += delta * growth_factor
+	
+	# update collision shape
+	var shape_node = get_node_or_null("CollisionShape")
+	if shape_node and shape_node.shape is SphereShape3D:
+		var sphere := shape_node.shape as SphereShape3D
+		sphere.radius = ball_radius
+	
+	# update mesh
+	var mesh_node = get_node_or_null("MeshInstance")
+	if mesh_node:
+		# scaling a sphere mesh is equavilant to increasing the diameter by the factor
+		# thus we multiply the factor by 2, since we scaled the collision sphere's
+		# radius
+		mesh_node.scale = Vector3.ONE * 2 * ball_radius
+		
+	# update GroundCheck RayCast vector
+	var new_y = $GroundCheck.target_position.y - (ball_radius + abs($GroundCheck.target_position.y))/abs($GroundCheck.target_position.y)
+	$GroundCheck.target_position.y = new_y
