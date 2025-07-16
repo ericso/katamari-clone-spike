@@ -15,6 +15,11 @@ run/main_scene="uid://bu3f7caahamu5"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Spawner="*res://Scenes/Globals/Spawner/Spawner.tscn"
+Camera="*res://Scenes/Globals/Camera/Camera.gd"
+
 [input]
 
 jump={

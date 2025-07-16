@@ -16,6 +16,7 @@ var pitch := 0.0
 var target: Node3D # target is the ball being followed by the camera
 
 func _ready() -> void:
+	Camera.set_camera(self)
 	target = get_node(target_path)
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 

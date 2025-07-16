@@ -1,13 +1,12 @@
 extends Node
 
-@export var box_scene: PackedScene # Assign Box.tscn in the Inspector
-@export var box_count := 100
-@export var scatter_radius := 20.0
+@export var box_scene: PackedScene
+@export var box_count := 10000
+@export var scatter_radius := 100.0
 
-func _ready():
-	randomize()
+func spawn_objects():
 	for i in box_count:
-		spawn_scaled_box()
+		Spawner.spawn_scaled_box()
 
 func spawn_scaled_box():
 	var box := box_scene.instantiate()

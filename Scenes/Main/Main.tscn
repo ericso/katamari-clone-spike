@@ -1,16 +1,15 @@
-[gd_scene load_steps=9 format=3 uid="uid://bu3f7caahamu5"]
+[gd_scene load_steps=8 format=3 uid="uid://bu3f7caahamu5"]
 
-[ext_resource type="Script" uid="uid://cjhn3y47klach" path="res://main.gd" id="1_1bvp3"]
-[ext_resource type="Texture2D" uid="uid://b4q3kmtk6okms" path="res://checkerboard.png" id="1_h2yge"]
-[ext_resource type="PackedScene" uid="uid://b2si5snpmegr6" path="res://ball.tscn" id="1_ig7tw"]
-[ext_resource type="Script" uid="uid://cqt2adrs30kiw" path="res://camera_rig.gd" id="2_0xm2m"]
-[ext_resource type="PackedScene" uid="uid://ch563stkpebmb" path="res://box.tscn" id="2_lquwl"]
+[ext_resource type="Script" uid="uid://cjhn3y47klach" path="res://Scenes/Main/Main.gd" id="1_i3fi7"]
+[ext_resource type="Texture2D" uid="uid://b4q3kmtk6okms" path="res://checkerboard.png" id="2_o8wgc"]
+[ext_resource type="PackedScene" uid="uid://b2si5snpmegr6" path="res://Scenes/Ball/Ball.tscn" id="3_w20t6"]
+[ext_resource type="Script" uid="uid://cqt2adrs30kiw" path="res://Scenes/Main/CameraRig.gd" id="4_aw1lf"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_7dm0k"]
 size = Vector3(1000, 2, 1000)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1bvp3"]
-albedo_texture = ExtResource("1_h2yge")
+albedo_texture = ExtResource("2_o8wgc")
 uv1_scale = Vector3(10, 10, 0)
 
 [sub_resource type="BoxMesh" id="BoxMesh_7dm0k"]
@@ -18,8 +17,7 @@ material = SubResource("StandardMaterial3D_1bvp3")
 size = Vector3(1000, 2, 1000)
 
 [node name="Main" type="Node"]
-script = ExtResource("1_1bvp3")
-box_scene = ExtResource("2_lquwl")
+script = ExtResource("1_i3fi7")
 
 [node name="Ground" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
@@ -36,11 +34,14 @@ mesh = SubResource("BoxMesh_7dm0k")
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 71, 63)
 shadow_enabled = true
 
-[node name="Ball" parent="." instance=ExtResource("1_ig7tw")]
+[node name="Ball" parent="." instance=ExtResource("3_w20t6")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+stuck_parts_container_path = NodePath("StuckParts")
+move_force = 3.0
+jump_force = 10.0
 
 [node name="CameraRig" type="Node3D" parent="."]
-script = ExtResource("2_0xm2m")
+script = ExtResource("4_aw1lf")
 target_path = NodePath("../Ball")
 
 [node name="SpringArm" type="SpringArm3D" parent="CameraRig"]
