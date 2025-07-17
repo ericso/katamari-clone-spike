@@ -5,6 +5,9 @@ extends Node
 @export var scatter_radius := 100.0
 @export var density := 10.0
 
+@export var box_size_min := 0.1
+@export var box_size_max := 0.6
+
 func spawn_objects():
 	for i in box_count:
 		Spawner.spawn_scaled_box()
@@ -13,7 +16,7 @@ func spawn_scaled_box():
 	var box := box_scene.instantiate()
 	add_child(box)
 
-	var scale := randf_range(0.1, 0.5)
+	var scale := randf_range(box_size_min, box_size_max)
 
 	# Create a new collision shape
 	var shape_node := box.get_node("CollisionShape")
